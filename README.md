@@ -8,11 +8,12 @@ So far this library only determines the individual cells that form the table wit
 
 ## Set up
 ### You will need
-- Python (tested with Python 3.6
+- Python (tested with Python 3.6)
 - [Poppler](https://poppler.freedesktop.org)
 
 ### Getting Python ready
 ```bash
+$ virtualenv .
 $ source bin/activate
 $ pip install -r requirements.txt
 ```
