@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -13,8 +14,8 @@ extension = extension.lstrip('.')
 if not os.path.exists(path):
     sys.exit('ERROR: File {0} was not found'.format(path))
 
-# List of rectangles that have been found
-rectangles = []
+# List of cells that have been found
+cells = []
 
 img = cv2.imread(path)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -26,8 +27,6 @@ for i, contour in enumerate(contours):
     perimeter = cv2.arcLength(contour, True)
 
     if 500 < perimeter < 1500:
-        rectangles.append(cv2.boundingRect(contour))
-
         # Calculate a bounding rectangle from the contour and get the dimensions
         x, y, w, h = cv2.boundingRect(contour)
 
@@ -36,13 +35,20 @@ for i, contour in enumerate(contours):
 
         # The y position on a PDF starts from the top and the bottom in the image.
         # We convert from image to PDF y by subtracting the image height from the y and adding the height.
-        pdf_y = str(abs(y - img_h + h))
+        pdf_y = abs(y - img_h + h)
+        cells.append({
+            'h': h,
+            'w': w,
+            'x': x,
+            'y': pdf_y,
+        })
+
         # Add some debugging info in each rectangle so we can see which text part in the XML file relates to this.
-        cv2.putText(img, 'x:' + str(x) + ', y:' + str(y) + ' (' + pdf_y + ')', (x + 10, y + 15),
+        cv2.putText(img, 'x:' + str(x) + ', y:' + str(y) + ' (' + str(pdf_y) + ')', (x + 10, y + 15),
                     cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
         cv2.putText(img, 'w:' + str(w) + ', h:' + str(h), (x + 10, y + 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
 
-# Debug: Ucomment to load image
+# Debug: Ucomment to view image
 # cv2.imshow("Output", img)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
@@ -50,3 +56,10 @@ for i, contour in enumerate(contours):
 filename = '{0}-processed.{1}'.format(shortname, extension)
 cv2.imwrite(filename, img)
 print('Saved processed {0} as {1}'.format(extension.upper(), filename))
+
+cells.sort(key=lambda cell: '{0:04d}-{1:04d}'.format(cell['y'], cell['x']))
+
+coords_filename = '{0}-coords.json'.format(shortname)
+with open(coords_filename, 'w') as coords_file:
+    json.dump(cells, coords_file)
+    print('Saved coordinates to {0}'.format(coords_filename))

@@ -10,4 +10,5 @@ $ python ../table-coords.py 7809-1.png
 - `7809.pdf`: The original PDF SOPN.
 - `7809.xml`: The generated XML file with the PDF text and metadata.
 - `7809-1.png`: The first (and only) page from the PDF, rendered as a PNG.
+- `7809-1-coords.json`: A JSON array of coordinates for the extracted coordinates.
 - `7809-1-processed.png`: The rendered PNG with debugging overlay, showing the detected candidate cells with the x, y, height, and width.
